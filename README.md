@@ -1,9 +1,5 @@
 # wendy.github.io
 
-现在是一个简单的响应式网站模板
-等待着我去修饰一番
-1 gei wo li giao giao
+北京疫情实时地图 柱状图等
+接口来自用友link https://api.yonyoucloud.com/apilink/tempServicePages/260492aa-6dbd-49f6-b82a-8a463b73ac33_true.html
 
-mapbox_token:pk.eyJ1Ijoiemhpd2VuaiIsImEiOiJjand2eGlzb2MwYWg3NDlyMXNmbGJyZGh2In0.VCR4KV-QWW2vBugH2G6cDw
-
-添加了一个简单的北京疫情地图

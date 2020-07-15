@@ -5,6 +5,7 @@
    </head>
    <body style="height: 100%; margin: 0">
        <div id="container" style="height: 100%"></div>
+       <script type="text/javascript" src="../js/jquery.min.js"></script>
        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-stat/dist/ecStat.min.js"></script>
@@ -103,73 +104,105 @@
             }
         };
 
-        option = {
-            color: ['#003366', '#006699', '#4cabce', '#e5323e'],
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
+        var xcqz = [], ljqz = [], ljzy = [], ljzw = [], echarscityName = [];
+        //疫情数据
+        $.ajax({
+            type : "GET",
+            async : false,
+            url : "http://121.8.161.106:8029/example/yq/getjson?name=spreadQuery",
+            dataType : "jsonp",//数据类型为jsonp  
+            jsonp : "jsonpCallback",//服务端用于接收callback调用的function名的参数
+            success : function(yqjson) {
+                if(yqjson.code == 200){
+                    console.log(yqjson.newslist[1]);
+                let cities = yqjson.newslist[1].cities;//北京市的区
+                // xcqz = yqjson.newslist[1].currentConfirmedCount;//现存确诊
+                // ljqz = yqjson.newslist[1].confirmedCount;//累计确诊
+                // ljzy = yqjson.newslist[1].curedCount;//累计治愈
+                // ljzw = yqjson.newslist[1].deadCount;//累计死亡
+                
+                for (let i = 0; i < cities.length; i++) {
+                    let qu = cities[i];
+                    echarscityName.push(qu.cityName);
+                    xcqz.push(Math.abs(qu.currentConfirmedCount));//现存确诊
+                    ljqz.push(Math.abs(qu.confirmedCount));//累计确诊
+                    ljzy.push(Math.abs(qu.curedCount));//累计治愈
+                    ljzw.push(Math.abs(qu.deadCount));//累计死亡
                 }
-            },
-            legend: {
-                data: ['累计确诊', '现有确诊', '累计治愈', '累计死亡']
-            },
-            // toolbox: {
-            //     show: true,
-            //     orient: 'vertical',
-            //     left: 'right',
-            //     top: 'center',
-            //     feature: {
-            //         mark: {show: true},
-            //         dataView: {show: true, readOnly: false},
-            //         magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
-            //         restore: {show: true},
-            //         saveAsImage: {show: true}
-            //     }
-            // },
-            xAxis: [
-                {
-                    type: 'category',
-                    axisTick: {show: false},
-                    data: ['东城区', '西城区', '海淀区', '朝阳区', '丰台区', '昌平区', '顺义区', '怀柔区', '房山区', '大兴区', '石景山', '门头沟', '通州区', '平谷区', '密云区', '延庆区'],
-                    axisLabel: {  
-                        interval:0,  
-                        rotate:40  
-                    } 
+                
+                option = {
+                    color: ['#003366', '#006699', '#4cabce', '#e5323e'],
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    legend: {
+                        data: ['累计确诊', '现有确诊', '累计治愈', '累计死亡']
+                    },
+                    // toolbox: {
+                    //     show: true,
+                    //     orient: 'vertical',
+                    //     left: 'right',
+                    //     top: 'center',
+                    //     feature: {
+                    //         mark: {show: true},
+                    //         dataView: {show: true, readOnly: false},
+                    //         magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                    //         restore: {show: true},
+                    //         saveAsImage: {show: true}
+                    //     }
+                    // },
+                    xAxis: [
+                        {
+                            type: 'category',
+                            axisTick: {show: false},
+                            data: echarscityName,
+                            axisLabel: {  
+                                interval:0,  
+                                rotate:40  
+                            } 
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value'
+                        }
+                    ],
+                    series: [
+                        {
+                            name: '累计确诊',
+                            type: 'bar',
+                            barGap: 0,
+                            data: ljqz
+                        },
+                        {
+                            name: '现有确诊',
+                            type: 'bar',
+                            data: xcqz
+                        },
+                        {
+                            name: '累计治愈',
+                            type: 'bar',
+                            data: ljzy
+                        },
+                        {
+                            name: '累计死亡',
+                            type: 'bar',
+                            data: ljzw
+                        }
+                    ]
+                };;
+
+                if (option && typeof option === "object") {
+                    myChart.setOption(option, true);
                 }
-            ],
-            yAxis: [
-                {
-                    type: 'value'
+
                 }
-            ],
-            series: [
-                {
-                    name: '累计确诊',
-                    type: 'bar',
-                    barGap: 0,
-                    data: [320, 332, 301, 334, 390, 332, 301, 334, 390, 332, 301, 334, 390, 332, 301, 334]
-                },
-                {
-                    name: '现有确诊',
-                    type: 'bar',
-                    data: [220, 182, 191, 234, 290, 182, 191, 234, 290, 182, 191, 234, 290, 182, 191, 234]
-                },
-                {
-                    name: '累计治愈',
-                    type: 'bar',
-                    data: [150, 232, 201, 154, 190, 232, 201, 154, 190, 232, 201, 154, 190, 232, 201, 154]
-                },
-                {
-                    name: '累计死亡',
-                    type: 'bar',
-                    data: [98, 77, 101, 99, 40, 77, 101, 99, 40, 77, 101, 99, 40, 77, 101, 99]
-                }
-            ]
-        };;
-        if (option && typeof option === "object") {
-            myChart.setOption(option, true);
-        }
+            }
+        });
+
        </script>
    </body>
 </html>

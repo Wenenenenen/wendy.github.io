@@ -49,10 +49,34 @@
     var app = {};
     option = null;
     myChart.showLoading();
+    var xcqz = 0, ljqz = 0, ljzy = 0, ljzw = 0;
     //疫情数据
-    // $.get('https://lab.isaaclin.cn/nCoV/api/area?latest=1&province=北京市',function(yqjson){
-        // if(yqjson.success){
-        //     let properties = yqjson.results[0].cities;
+    $.ajax({
+        type : "GET",
+		async : false,
+		url : "http://121.8.161.106:8029/example/yq/getjson?name=spreadQuery",
+		dataType : "jsonp",//数据类型为jsonp  
+		jsonp : "jsonpCallback",//服务端用于接收callback调用的function名的参数
+		success : function(yqjson) {
+            if(yqjson.code == 200){
+                console.log(yqjson.newslist[1]);
+            let cities = yqjson.newslist[1].cities;//北京市的区
+            let echarData = [];
+            xcqz = yqjson.newslist[1].currentConfirmedCount;//现存确诊
+            ljqz = yqjson.newslist[1].confirmedCount;//累计确诊
+            ljzy = yqjson.newslist[1].curedCount;//累计治愈
+            ljzw = yqjson.newslist[1].deadCount;//累计死亡
+
+            let currHigh = cities[0].currentConfirmedCount;
+            for (let i = 0; i < cities.length; i++) {
+                let qu = cities[i];
+                if(qu.currentConfirmedCount > currHigh) currHigh = qu.currentConfirmedCount;
+                echarData.push({name: qu.cityName, value: qu.currentConfirmedCount});
+                echarData.push({name: '平谷区', value: 0});
+            }
+            let mult = Math.pow(10, 2);
+            currHigh = Math.ceil(currHigh / mult) * mult;//向上取整
+
             //北京geojson
             $.get('../json/beijing.json',function(bjgeojson){
                 myChart.hideLoading();
@@ -73,7 +97,7 @@
                     },
                     tooltip: {
                         trigger: 'item',
-                        formatter: '{b}<br/><font color="red">{c}</font> (人)'
+                        formatter: '{b}<br/><font style="color: red; font-weight: bolder;">{c}</font> (人)'
                     },
                     /*toolbox: {
                         show: true,
@@ -88,7 +112,7 @@
                     },*/
                     visualMap: {
                         min: 0,
-                        max: 300,
+                        max: currHigh,
                         text: ['高风险', '低风险'],
                         realtime: false,
                         calculable: true,
@@ -104,65 +128,59 @@
                             label: {
                                 show: true
                             },
-                            data: [
-                                {name: '东城区', value: 19},
-                                {name: '西城区', value: 59},
-                                {name: '朝阳区', value: 77},
-                                {name: '丰台区', value: 273},
-                                {name: '石景山区', value: 15},
-                                {name: '海淀区', value: 82},
-                                {name: '门头沟区', value: 5},
-                                {name: '房山区', value: 20},
-                                {name: '通州区', value: 20},
-                                {name: '顺义区', value: 10},
-                                {name: '昌平区', value: 30},
-                                {name: '大兴区', value: 104},
-                                {name: '怀柔区', value: 7},
-                                {name: '平谷区', value: 0},
-                                {name: '密云区', value: 7},
-                                {name: '延庆区', value: 1}
-                            ]
+                            data: echarData
+                            // data: [
+                            //     {name: '东城区', value: 19},
+                            //     {name: '西城区', value: 59},
+                            //     {name: '朝阳区', value: 77},
+                            //     {name: '丰台区', value: 273},
+                            //     {name: '石景山区', value: 15},
+                            //     {name: '海淀区', value: 82},
+                            //     {name: '门头沟区', value: 5},
+                            //     {name: '房山区', value: 20},
+                            //     {name: '通州区', value: 20},
+                            //     {name: '顺义区', value: 10},
+                            //     {name: '昌平区', value: 30},
+                            //     {name: '大兴区', value: 104},
+                            //     {name: '怀柔区', value: 7},
+                            //     {name: '平谷区', value: 0},
+                            //     {name: '密云区', value: 7},
+                            //     {name: '延庆区', value: 1}
+                            // ]
                         }
                     ]
                 };
             
                 myChart.setOption(option);
+                
+                var $ul1 = '<ul class="headul">'+
+                            '<li class="headli">现有确诊</li>'+
+                            '<li class="headli">累计确诊</li>'+
+                            '<li class="headli">累计治愈</li>'+
+                            '<li class="headli">累计死亡</li>'+
+                        '</ul>';
+                var $ul2 = '<ul class="headul" style="margin-top: 16px;">'+
+                            '<li class="headli">'+xcqz+'</li>'+
+                            '<li class="headli">'+ljqz+'</li>'+
+                            '<li class="headli">'+ljzy+'</li>'+
+                            '<li class="headli">'+ljzw+'</li>'+
+                        '</ul>';
+                
+                var $head = '<div class="head"></div>';
+                $('body').append($head);
+                $('.head').append($ul1);$('.head').append($ul2);
+
             });
-        // }
-    // });
+        }
+		},
+		error : function() {
+			alert('请求异常');
+            return;
+		}
+    });
     if (option && typeof option === "object") {
         myChart.setOption(option, true);
     }
-
-    // <ul class="" style="width: 100%;">
-	// 	<li class="headli">现有确诊</li>
-	// 	<li class="headli">累计确诊</li>
-	// 	<li class="headli">累计治愈</li>
-	// 	<li class="headli">累计死亡</li>
-	// </ul>
-	// <ul class="" style="width: 100%;">
-	// 	<li class="headli">100</li>
-	// 	<li class="headli">800</li>
-	// 	<li class="headli">800</li>
-	// 	<li class="headli">12</li>
-    // </ul>
-    var $ul1 = '<ul class="headul">'+
-                '<li class="headli">现有确诊</li>'+
-                '<li class="headli">累计确诊</li>'+
-                '<li class="headli">累计治愈</li>'+
-                '<li class="headli">累计死亡</li>'+
-              '</ul>';
-    var $ul2 = '<ul class="headul" style="margin-top: 16px;">'+
-                '<li class="headli">251</li>'+
-                '<li class="headli">929</li>'+
-                '<li class="headli">669</li>'+
-                '<li class="headli">9</li>'+
-              '</ul>';
-    
-    var $head = '<div class="head"></div>';
-    $('body').append($head);
-    $('.head').append($ul1);$('.head').append($ul2);
-
     //同步获取数据
     function getJson(url) {
         return new Promise(function(resolve, reject) {

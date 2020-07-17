@@ -14,17 +14,16 @@
         newlaughing(-1);
     });
     $('.music').click(function(){
-        var flag = $('#wyy').hasClass('wyy_close');
-        if(flag){
-          $('#wyy').removeClass('wyy_close').addClass('wyy_open');
-          setTimeout(function(){
-            layer.msg('网易云接入入口有待完善,再次点击关闭', {icon: 5}, function(){
-              // $('#wyy').removeClass('wyy_open').addClass('wyy_close');
-            });
-          }, 1000);
-        }else{
-          $('#wyy').removeClass('wyy_open').addClass('wyy_close');
-        }
+        layer.open({
+          type: 2,
+          title: '<font color="#ff5200">没事常来听歌叭❤</font>',
+          shadeClose: true,
+          offset: ['0', '0'],
+          shade: false,
+          maxmin: true, //开启最大化最小化按钮
+          area: ['380px', '100%'],
+          content: '../assets/page/Meting.html'
+        });
     });
     $('.echarts').click(function(){
         layer.open({
